@@ -1,6 +1,9 @@
 version: "3"
 
 services:
+
+### NGINX Container #########################################
+
     nginx:
       image: nginx:latest
       ports:
@@ -12,11 +15,58 @@ services:
       links:
         - php-fpm
 
+
+### PHP-fpm Container #########################################
+
     php-fpm:
-      image: php:5.6-fpm
+      image: php:v4
       build: ./php-fpm
       volumes:
         - ./www:/www
 
+### Composer Container #########################################
 
 
+    composer:
+      image: "composer"
+      volumes:
+        - "./web/app:/app"
+      command: install
+
+### Redis Container #########################################
+
+    redis:
+      image: redis:latest
+      volumes:
+        - .data/redis:/data
+      ports:
+        - "6379:6379"
+
+
+### Mysql Container #########################################
+
+
+    mysql:
+        image: mysql:5.5
+        restart: always
+        env_file:
+            - ".env"
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        ports:
+            - "3306:3306"
+        volumes:
+        - "./data/db/mysql:/var/lib/mysql"
+
+
+### Mongo Container #########################################
+
+    mongo:
+      image: mongo:latest
+      ports:
+        - "27017:27017"
+      volumes:
+        - ./data/mongo:/data/db
